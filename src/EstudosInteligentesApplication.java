@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,8 +18,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
+import com.sendgrid.*;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -74,22 +75,47 @@ class Estudo {
     private String telefone;
 
     // Getters e Setters
-    // ...
 }
 
 interface EstudoRepository extends JpaRepository<Estudo, Long> {}
 
 @Service
+class SendGridService {
+
+    private static final String API_KEY = "YOUR_SENDGRID_API_KEY";
+
+    public void enviarEmail(String destinatario, String assunto, String corpo) {
+        Email from = new Email("seuemail@dominio.com");
+        String subject = assunto;
+        Email to = new Email(destinatario);
+        Content content = new Content("text/plain", corpo);
+        Mail mail = new Mail(from, subject, to, content);
+
+        SendGrid sg = new SendGrid(API_KEY);
+        Request request = new Request();
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            System.out.println(response.getStatusCode());
+            System.out.println(response.getBody());
+            System.out.println(response.getHeaders());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+@Service
 class EstudoService {
     private final EstudoRepository repository;
-    private final JavaMailSender mailSender;
-    private final TwilioConfig twilioConfig;
+    private final SendGridService sendGridService;
 
-    public EstudoService(EstudoRepository repository, JavaMailSender mailSender, TwilioConfig twilioConfig) {
+    public EstudoService(EstudoRepository repository, SendGridService sendGridService) {
         this.repository = repository;
-        this.mailSender = mailSender;
-        this.twilioConfig = twilioConfig;
-        Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
+        this.sendGridService = sendGridService;
     }
 
     public List<Estudo> listar() {
@@ -120,27 +146,12 @@ class EstudoService {
         for (Estudo estudo : estudos) {
             if (estudo.getProximaRevisao().equals(LocalDate.now())) {
                 enviarEmail(estudo);
-                enviarWhatsApp(estudo);
             }
         }
     }
 
     private void enviarEmail(Estudo estudo) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(estudo.getEmail());
-        message.setSubject("Lembrete de Revisão");
-        message.setText("Está na hora de revisar: " + estudo.getTitulo());
-        mailSender.send(message);
-    }
-
-    private void enviarWhatsApp(Estudo estudo) {
-        if (estudo.getTelefone() != null && !estudo.getTelefone().isEmpty()) {
-            Message whatsappMessage = Message.creator(
-                new com.twilio.type.PhoneNumber("whatsapp:" + estudo.getTelefone()),
-                new com.twilio.type.PhoneNumber("whatsapp:" + twilioConfig.getPhoneNumber()),
-                "Está na hora de revisar: " + estudo.getTitulo()
-            ).create();
-        }
+        sendGridService.enviarEmail(estudo.getEmail(), "Lembrete de Revisão", "Está na hora de revisar: " + estudo.getTitulo());
     }
 }
 
@@ -171,33 +182,5 @@ class EstudoController {
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
         service.deletar(id);
-    }
-}
-
-@Configuration
-class TwilioConfig {
-    @Value("${twilio.account.sid}")
-    private String accountSid;
-    @Value("${twilio.auth.token}")
-    private String authToken;
-    @Value("${twilio.phone.number}")
-    private String phoneNumber;
-
-    public String getAccountSid() { return accountSid; }
-    public String getAuthToken() { return authToken; }
-    public String getPhoneNumber() { return phoneNumber; }
-}
-
-@Service
-class AgendamentoService {
-    private final EstudoService estudoService;
-
-    public AgendamentoService(EstudoService estudoService) {
-        this.estudoService = estudoService;
-    }
-
-    @Scheduled(cron = "0 0 8 * * *")
-    public void enviarNotificacoes() {
-        estudoService.enviarNotificacoes();
     }
 }
