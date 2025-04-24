@@ -3,7 +3,11 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" />
   <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white" alt="Java" />
+<<<<<<< HEAD
   <img src="https://img.shields.io/badge/Twilio-FF0000?style=for-the-badge&logo=twilio&logoColor=white" alt="Twilio" />
+=======
+  <img src="https://img.shields.io/badge/SendGrid-00B2A9?style=for-the-badge&logo=sendgrid&logoColor=white" alt="SendGrid" />
+>>>>>>> c48ab68177a4e0c895c99d55dfcdcf4198acda89
 </p>
 
 ## 🏗️ Em Construção 🚧
@@ -19,7 +23,11 @@
 ### Funcionalidades
 
 - **CRUD de Estudo**: Gerencie seus estudos de forma simples e eficiente.
+<<<<<<< HEAD
 - **Envio de Lembretes**: Envio de lembretes automáticos via **e-mail** e **WhatsApp** usando a API do **Twilio**.
+=======
+- **Envio de Lembretes**: Envio de lembretes automáticos via **e-mail** usando a API do **SendGrid**.
+>>>>>>> c48ab68177a4e0c895c99d55dfcdcf4198acda89
 - **Notificações Automatizadas**: Notificações programadas para lembrar sobre revisões e tarefas de estudo, utilizando **Spring Scheduling**.
 - **Autenticação Simples**: Proteja suas informações com autenticação básica utilizando **Spring Security**.
 
@@ -27,7 +35,11 @@
 
 - **Spring Boot**: Framework principal para o desenvolvimento da aplicação.
 - **Java**: Linguagem de programação utilizada.
+<<<<<<< HEAD
 - **Twilio**: API para envio de mensagens via WhatsApp e e-mail.
+=======
+- **SendGrid**: API para envio de mensagens via e-mail.
+>>>>>>> c48ab68177a4e0c895c99d55dfcdcf4198acda89
 - **Spring Data JPA**: Utilizado para persistência de dados no banco de dados.
 - **Spring Security**: Para autenticação e segurança da aplicação.
 - **Spring Scheduling**: Para agendar tarefas como o envio de notificações.
@@ -40,4 +52,8 @@ Este projeto tem como objetivo proporcionar uma solução prática e inteligente
 
 1. Clone o repositório:
    ```bash
+<<<<<<< HEAD
    git clone https://github.com/seu-usuario/EstudosInteligentes.git
+=======
+   git clone https://github.com/pedrolucas167/EstudosInteligentes.git
+>>>>>>> c48ab68177a4e0c895c99d55dfcdcf4198acda89
